@@ -1,7 +1,12 @@
-export const metadata = {
-  title: "Home",
-};
+import ProductList from "@/components/shared/product/product-list";
+// import sampleData from "@/db/sample-data";
+import { getLatestProducts } from "@/lib/actions/product.actions";
 
-export default function Homepage() {
-  return <div>said sos</div>;
+export default async function Homepage() {
+  const latestProducts = await getLatestProducts();
+  return (
+    <>
+      <ProductList data={latestProducts} title="New Arrivals" />
+    </>
+  );
 }
