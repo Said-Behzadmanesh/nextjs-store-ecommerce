@@ -3,7 +3,7 @@ import { prisma } from "@/db/prisma";
 import { compareSync } from "bcrypt-ts-edge";
 import NextAuth from "next-auth";
 import CredentialsProvider from "next-auth/providers/credentials";
-import type { NextAuthOptions } from "next-auth";
+import type { NextAuthConfig } from "next-auth";
 
 export const config = {
   pages: {
@@ -62,6 +62,6 @@ export const config = {
       return session;
     },
   },
-} satisfies NextAuthOptions;
+} satisfies NextAuthConfig;
 
 export const { handlers, auth, signIn, signOut } = NextAuth(config);
