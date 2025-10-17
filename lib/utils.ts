@@ -2,6 +2,7 @@ import { clsx, type ClassValue } from "clsx"
 import { twMerge } from "tailwind-merge"
 import { ZodError } from "zod";
 import { Prisma } from "./generated/prisma";
+import { th } from "zod/v4/locales";
 
 export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs))
@@ -53,5 +54,16 @@ export function formatError(error: any) {
   } else {
     // handle other errors
     return typeof error.message === "string" ? error.message : JSON.stringify(error.message);
+  }
+}
+
+// round number to two decimal places
+export function roundNumber2(value: number | string) {
+  if (typeof value === "number") {
+    return Math.round((value + Number.EPSILON) * 100) / 100;
+  } else if (typeof value === "string") {
+    return Math.round((Number(value) + Number.EPSILON) * 100) / 100;
+  } else {
+    throw new Error("Value must be a number or string");
   }
 }
