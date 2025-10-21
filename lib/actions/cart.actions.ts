@@ -8,7 +8,6 @@ import { auth } from "@/auth";
 import { prisma } from "@/db/prisma";
 import { cartItemSchema, insertCartSchema } from "../validators";
 import { revalidatePath } from "next/cache";
-import { Prisma } from "@prisma/client";
 
 // calclulate the total price of the cart
 const calculatePrice = (items: CartItem[]) => {
@@ -84,7 +83,8 @@ export async function addItemToCart(data: CartItem) {
                 }
 
                 // increase quantity
-                existingItem.quantity += item.quantity;
+                // (cart.items as CartItem[]).find((i) => i.productId === item.productId)!.quantity = item.quantity + 1;
+                existingItem.quantity = item.quantity + 1;
             } else {
                 // add item to cart
                 if (product.stock < 1) {
