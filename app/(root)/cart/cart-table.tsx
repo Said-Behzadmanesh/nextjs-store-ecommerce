@@ -14,14 +14,11 @@ import { useToast } from "@/hooks/use-toast";
 import { addItemToCart, removeItemFromCart } from "@/lib/actions/cart.actions";
 import { formatCurrency } from "@/lib/utils";
 import { Cart } from "@/types";
-import { Arrow } from "@radix-ui/react-dropdown-menu";
 import { ArrowRight, Loader, Minus, Plus } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { format } from "path";
 import { useTransition } from "react";
-import { start } from "repl";
 
 const CartTable = ({ cart }: { cart?: Cart }) => {
   const router = useRouter();

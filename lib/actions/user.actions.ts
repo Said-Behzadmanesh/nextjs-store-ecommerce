@@ -1,7 +1,7 @@
 "use server";
 
 import { auth, signIn, signOut } from "@/auth";
-import { shippingAddressSchema, signInSchema, signUpFormSchema } from "../validators";
+import { shippingAddressSchema, signInFormSchema, signUpFormSchema } from "../validators";
 import { isRedirectError } from "next/dist/client/components/redirect-error";
 import { hashSync } from "bcrypt-ts-edge";
 import { prisma } from "@/db/prisma";
@@ -11,7 +11,7 @@ import { ShippingAddress } from "@/types";
 // sign in the user with credentials
 export async function signInWithCredentials(prevState: unknown, formData: FormData) {
     try {
-        const user = signInSchema.parse({
+        const user = signInFormSchema.parse({
             email: formData.get("email"),
             password: formData.get("password"),
         });

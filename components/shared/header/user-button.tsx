@@ -1,6 +1,5 @@
 import { auth } from "@/auth";
 import { Button } from "@/components/ui/button";
-import { signOutUser } from "@/lib/actions/user.actions";
 import { UserIcon } from "lucide-react";
 import Link from "next/link";
 import { UserDropdown } from "./user-dropdown";

@@ -8,12 +8,11 @@ import { auth } from "@/auth";
 import { prisma } from "@/db/prisma";
 import { cartItemSchema, insertCartSchema } from "../validators";
 import { revalidatePath } from "next/cache";
+import { Prisma } from "@prisma/client";
 
-// calclulate the total price of the cart
+// calculate price of the cart
 const calculatePrice = (items: CartItem[]) => {
-    const itemsPrice = roundNumber2(
-        items.reduce((acc, item) => acc + Number(item.price) * item.quantity, 0)
-    ),
+    const itemsPrice = roundNumber2(items.reduce((acc, item) => acc + Number(item.price) * item.quantity, 0)),
         shippingPrice = roundNumber2(itemsPrice > 100 ? 0 : 10),
         taxPrice = roundNumber2(itemsPrice * 0.15),
         totalPrice = roundNumber2(itemsPrice + shippingPrice + taxPrice);
@@ -49,6 +48,14 @@ export async function addItemToCart(data: CartItem) {
             where: { id: item.productId },
         });
 
+        console.log({
+            "Session Cart ID ": sessionCartId,
+            "User ID ": userId,
+            "Item requested ": item,
+            "Product found ": product
+        });
+
+
         if (!product) {
             throw new Error("Product not found");
         }
@@ -60,7 +67,9 @@ export async function addItemToCart(data: CartItem) {
                 items: [item],
                 sessionCartId: sessionCartId,
                 ...calculatePrice([item]),
-            })
+            });
+
+            console.log("new Cart: ", newCart);
 
             // add to database
             await prisma.cart.create({ data: newCart });
@@ -70,7 +79,7 @@ export async function addItemToCart(data: CartItem) {
 
             return {
                 success: true,
-                message: "Item added to cart",
+                message: `${product.name} added to cart`,
             }
         } else {
             // check if the item is already in the cart
@@ -78,18 +87,19 @@ export async function addItemToCart(data: CartItem) {
 
             if (existingItem) {
                 // check stock
-                if (product.stock < existingItem.quantity + item.quantity) {
+                if (product.stock < existingItem.quantity + 1) {
                     throw new Error("Item quantity is out of stock");
                 }
 
                 // increase quantity
-                // (cart.items as CartItem[]).find((i) => i.productId === item.productId)!.quantity = item.quantity + 1;
-                existingItem.quantity = item.quantity + 1;
+                // existingItem.quantity = item.quantity + 1;
+                (cart.items as CartItem[]).find((i) => i.productId === item.productId)!.quantity = existingItem.quantity + 1;
             } else {
                 // add item to cart
                 if (product.stock < 1) {
                     throw new Error("Item quantity is out of stock");
                 }
+                // add item to cart.items
                 cart.items.push(item);
             }
 
@@ -97,7 +107,9 @@ export async function addItemToCart(data: CartItem) {
             await prisma.cart.update({
                 where: { id: cart.id },
                 data: {
-                    items: cart.items,  // as Prisma.CartUpdateitemsInput[],
+                    items: {
+                        set: cart.items,
+                    },
                     ...calculatePrice(cart.items as CartItem[]),
                 },
             });
@@ -181,7 +193,7 @@ export async function removeItemFromCart(productId: string) {
             cart.items = (cart.items as CartItem[]).filter((i) => i.productId !== item.productId);
         } else {
             // decrease quantity
-            (cart.items as CartItem[]).find((i) => i.productId === productId)!.quantity -= 1;
+            (cart.items as CartItem[]).find((i) => i.productId === productId)!.quantity = item.quantity - 1;
         }
 
         // update to database

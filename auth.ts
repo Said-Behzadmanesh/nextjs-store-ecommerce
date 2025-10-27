@@ -37,6 +37,8 @@ export const config = {
         if (user && user.password) {
           const isMatch = compareSync(credentials.password as string, user.password);
 
+
+          // if password matches return user
           if (isMatch) {
             return {
               id: user.id,
@@ -69,8 +71,9 @@ export const config = {
 
     async jwt({ token, user, trigger, session }: any) {
       if (user) {
+        token.id = user.id;
         token.role = user.role;
-        // if user has no name the use the email
+        // if user has no name then use the email
         if (user.name === "NO_NAME") {
           token.name = user.email!.split("@")[0];
 
@@ -83,12 +86,68 @@ export const config = {
               name: token.name,
             },
           });
-        }
 
+        }
+        if (trigger === "signIn" || trigger === "signUp") {
+          const cookiesObject = await cookies();
+          const sessionCartId = cookiesObject.get("sessionCartId")?.value;
+
+          if (sessionCartId) {
+            const sessionCart = await prisma.cart.findFirst({
+              where: {
+                sessionCartId,
+              },
+            });
+
+            if (sessionCart) {
+              // delete current user cart
+              await prisma.cart.deleteMany({
+                where: {
+                  userId: user.id,
+                },
+              });
+
+              // assign new cart
+              await prisma.cart.update({
+                where: {
+                  id: sessionCart.id,
+                },
+                data: {
+                  userId: user.id,
+                },
+              })
+            }
+          }
+        }
       }
+
+      // handle session update
+      if (session?.user.name && trigger === "update") {
+        token.name = session.user.name;
+      }
+
       return token;
     },
     authorized({ request, auth }: any) {
+      // array of regex patterns of paths we want to protect
+      const protectedPaths = [
+        /\/shipping-address/,
+        /\/payment-method/,
+        /\/place-order/,
+        /\/profile/,
+        /\/user\/(.*)/,
+        /\/order\/(.*)/,
+        /\/admin/,
+      ];
+
+      // get pathname from the req URL object
+      const { pathname } = request.nextUrl;
+
+      // check if user is not authenticated and accessing a protected path
+      if (!auth && protectedPaths.some((path) => path.test(pathname))) {
+        return false;
+      }
+
       // check for session cart cookie
       if (!request.cookies.get("sessionCartId")) {
 
