@@ -5,5 +5,5 @@ export const LATEST_PRODUCTS_LIMIT = Number(process.env.LATEST_PRODUCTS_LIMIT ||
 export const signInDefaultValues = { email: "admin@example.com", password: "12345678" };
 export const signUpDefaultValues = { name: "", email: "", password: "", confirmPassword: "" };
 export const shippingAddressDefaultValues = { fullName: "Jon Doe", streetAddress: "123 Main Street", city: "mytown", postalCode: "789456", country: "UK" };
-export const PAYMENT_METHOD = process.env.PAYMENT_METHODS ? process.env.PAYMENT_METHODS.split(", ") : ["PayPal", "Stripe", "CashOnDelivery"];
+export const PAYMENT_METHODS = process.env.PAYMENT_METHODS ? process.env.PAYMENT_METHODS.split(", ") : ["PayPal", "Stripe", "CashOnDelivery"];
 export const DEFAULT_PAYMENT_METHOD = process.env.DEFAULT_PAYMENT_METHOD || "PayPal";
