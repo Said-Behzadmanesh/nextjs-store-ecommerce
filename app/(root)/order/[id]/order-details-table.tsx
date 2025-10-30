@@ -59,9 +59,9 @@ const OrderDetailsTable = ({ order }: { order: Order }) => {
                 {shippingAddress.postalCode}, {shippingAddress.country}
               </p>
               {isDelivered ? (
-                <Ba dge variant="secondary">
+                <Badge variant="secondary">
                   Paid on {formatDateTime(deliveredAt!).dateTime}
-                </Ba>
+                </Badge>
               ) : (
                 <Badge variant="destructive">Not delivered yet</Badge>
               )}
