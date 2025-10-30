@@ -1,4 +1,3 @@
-import { CartUpdateitemsInput } from './../generated/prisma/index.d';
 "use server";
 
 import { CartItem } from "@/types";
@@ -8,11 +7,10 @@ import { auth } from "@/auth";
 import { prisma } from "@/db/prisma";
 import { cartItemSchema, insertCartSchema } from "../validators";
 import { revalidatePath } from "next/cache";
-import { Prisma } from "@prisma/client";
 
 // calculate price of the cart
 const calculatePrice = (items: CartItem[]) => {
-    const itemsPrice = roundNumber2(items.reduce((acc, item) => acc + Number(item.price) * item.quantity, 0)),
+    const itemsPrice = roundNumber2(items.reduce((acc, item) => acc + Number(item.price) * item.qty, 0)),
         shippingPrice = roundNumber2(itemsPrice > 100 ? 0 : 10),
         taxPrice = roundNumber2(itemsPrice * 0.15),
         totalPrice = roundNumber2(itemsPrice + shippingPrice + taxPrice);
@@ -87,13 +85,13 @@ export async function addItemToCart(data: CartItem) {
 
             if (existingItem) {
                 // check stock
-                if (product.stock < existingItem.quantity + 1) {
+                if (product.stock < existingItem.qty + 1) {
                     throw new Error("Item quantity is out of stock");
                 }
 
                 // increase quantity
                 // existingItem.quantity = item.quantity + 1;
-                (cart.items as CartItem[]).find((i) => i.productId === item.productId)!.quantity = existingItem.quantity + 1;
+                (cart.items as CartItem[]).find((i) => i.productId === item.productId)!.qty = existingItem.qty + 1;
             } else {
                 // add item to cart
                 if (product.stock < 1) {
@@ -188,12 +186,12 @@ export async function removeItemFromCart(productId: string) {
         }
 
         // check if only one item in cart
-        if (item.quantity === 1) {
+        if (item.qty === 1) {
             // remove from the cart
             cart.items = (cart.items as CartItem[]).filter((i) => i.productId !== item.productId);
         } else {
             // decrease quantity
-            (cart.items as CartItem[]).find((i) => i.productId === productId)!.quantity = item.quantity - 1;
+            (cart.items as CartItem[]).find((i) => i.productId === productId)!.qty = item.qty - 1;
         }
 
         // update to database

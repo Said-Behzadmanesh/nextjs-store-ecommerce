@@ -86,7 +86,7 @@ const CartTable = ({ cart }: { cart?: Cart }) => {
                           <Minus className="h-4 w-4" />
                         )}
                       </Button>
-                      {item.quantity}
+                      {item.qty}
                       <Button
                         disabled={isPending}
                         variant="outline"
@@ -119,8 +119,8 @@ const CartTable = ({ cart }: { cart?: Cart }) => {
           <Card>
             <CardContent className="gap-4 p-4">
               <div className="pb-3 text-xl">
-                Subtotal (
-                {cart.items.reduce((acc, item) => acc + item.quantity, 0)}):
+                Subtotal ({cart.items.reduce((acc, item) => acc + item.qty, 0)}
+                ):
                 <span className="font-bold">
                   {formatCurrency(cart.itemsPrice)}
                 </span>
